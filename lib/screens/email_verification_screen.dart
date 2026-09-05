@@ -1,7 +1,12 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:kronik_hasta_takip/services/patient_code_service.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_page.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_button.dart';
+import '../widgets/app_app_bar.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   final String email;
@@ -92,23 +97,27 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   Future<void> _saveToFirestore(String uid) async {
     try {
-      String generatePatientCode() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        final rand = Random();
-        return 'HT${List.generate(4, (index) => chars[rand.nextInt(chars.length)]).join()}';
+      final existingPatient =
+          await FirebaseFirestore.instance.collection('patients').doc(uid).get();
+      if (existingPatient.exists) {
+        await existingPatient.reference.update({
+          'emailVerified': true,
+          'lastLogin': Timestamp.now(),
+        });
+        await PatientCodeService.ensureMapped(
+          uid,
+          existingPatient.data()?['patientCode'] as String?,
+        );
+        return;
       }
 
       String patientCode;
       bool codeExists;
 
       do {
-        patientCode = generatePatientCode();
-        final existing =
-            await FirebaseFirestore.instance
-                .collection('patients')
-                .where('patientCode', isEqualTo: patientCode.toUpperCase())
-                .get();
-        codeExists = existing.docs.isNotEmpty;
+        patientCode = PatientCodeService.generate();
+        final existing = await PatientCodeService.patientIdFor(patientCode);
+        codeExists = existing != null;
       } while (codeExists);
 
       await FirebaseFirestore.instance.collection('patients').doc(uid).set({
@@ -129,6 +138,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         'lastLogin': Timestamp.now(),
         'role': 'patient',
       });
+      await PatientCodeService.ensureMapped(uid, patientCode);
     } on FirebaseException catch (e) {
       throw FirebaseException(
         plugin: 'firestore',
@@ -142,210 +152,81 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SizedBox.expand(
-        // ⭐️ Tam ekran kaplama
-        child: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('images/arka_plan.png'),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: SafeArea(
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24.0,
-                vertical: 16.0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () => Navigator.pop(context),
-                    ),
+    return AppPage(
+      appBar: AppBar(
+        leading: const AppBackButton(),
+        title: const Text('Hesap Doğrulama'),
+      ),
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          child: AppCard(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                Text(
+                  "Hesap Doğrulama",
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  "Doğrulama linki şu adrese gönderildi:",
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.muted,
                   ),
-                  const SizedBox(height: 20),
-                  ClipRRect(borderRadius: BorderRadius.circular(24)),
-                  const SizedBox(height: 30),
-
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(32),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 10,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          "Hesap Doğrulama",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black.withOpacity(0.8),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          "Doğrulama linki şu adrese gönderildi:",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black.withOpacity(0.6),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          widget.email,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black87,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 30),
-
-                        if (_isVerified) ...[
-                          const Icon(
-                            Icons.verified,
-                            color: Colors.green,
-                            size: 50,
-                          ),
-                          const SizedBox(height: 20),
-                          const Text(
-                            "Hesabınız Doğrulandı",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 30),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushReplacementNamed(
-                                context,
-                                '/loginEmail',
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFCDE7DA),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: const BorderSide(
-                                  color: Colors.black,
-                                  width: 2,
-                                ),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 40,
-                                vertical: 16,
-                              ),
-                            ),
-                            child: const Text(
-                              "GİRİŞ EKRANINA DÖN",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ] else ...[
-                          ElevatedButton(
-                            onPressed: _isLoading ? null : _checkVerification,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFCDE7DA),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: const BorderSide(
-                                  color: Colors.black,
-                                  width: 2,
-                                ),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 40,
-                                vertical: 16,
-                              ),
-                            ),
-                            child:
-                                _isLoading
-                                    ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.black,
-                                      ),
-                                    )
-                                    : const Text(
-                                      "DOĞRULADIM",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                          ),
-                          const SizedBox(height: 20),
-                          Center(
-                            child: TextButton(
-                              onPressed:
-                                  _isResending ? null : _resendVerification,
-                              child:
-                                  _isResending
-                                      ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                      : const Text(
-                                        "Doğrulama Mailini Tekrar Gönder",
-                                        style: TextStyle(
-                                          fontSize: 19,
-                                          color: Color.fromARGB(
-                                            255,
-                                            26,
-                                            100,
-                                            161,
-                                          ),
-                                          decoration: TextDecoration.underline,
-                                        ),
-                                      ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 20),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Text(
-                              "• Eğer emaili bulamadıysanız spam klasörünü kontrol edin\n",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black54,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  widget.email,
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 28),
+                if (_isVerified) ...[
+                  const Icon(
+                    Icons.verified,
+                    color: AppColors.teal,
+                    size: 50,
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Hesabınız Doğrulandı",
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 24),
+                  AppButton(
+                    label: 'Giriş Ekranına Dön',
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/loginEmail');
+                    },
+                  ),
+                ] else ...[
+                  AppButton(
+                    label: 'Doğruladım',
+                    loading: _isLoading,
+                    onPressed: _checkVerification,
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: _isResending ? null : _resendVerification,
+                    child:
+                        _isResending
+                            ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                            : const Text('Doğrulama Mailini Tekrar Gönder'),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "Eğer emaili bulamadıysanız spam klasörünü kontrol edin.",
+                    style: Theme.of(context).textTheme.bodySmall,
+                    textAlign: TextAlign.center,
+                  ),
                 ],
-              ),
+              ],
             ),
           ),
         ),

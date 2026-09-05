@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_page.dart';
+import '../widgets/app_app_bar.dart';
 
 class ChatBotScreen extends StatefulWidget {
   const ChatBotScreen({super.key});
@@ -43,20 +46,12 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF1F4F6),
+    return AppPage(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: const Text("Sağlık Asistanı"),
-        backgroundColor: const Color.fromARGB(255, 239, 253, 251),
       ),
-      body: Stack(
-        children: [
-          // Arka Plan
-          Positioned.fill(
-            child: Image.asset('images/arka_plan.png', fit: BoxFit.cover),
-          ),
-          // İçerik
-          Column(
+      child: Column(
             children: [
               // Mesajlar
               Expanded(
@@ -107,12 +102,12 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                           child: ListTile(
                             title: Text(
                               question,
-                              style: const TextStyle(fontSize: 18),
+                              style: const TextStyle(fontSize: 16),
                             ),
                             onTap: () => _sendMessage(question),
                             trailing: const Icon(
                               Icons.send,
-                              color: Colors.grey,
+                              color: AppColors.muted,
                             ),
                           ),
                         );
@@ -128,10 +123,10 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.paper,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
+                        color: AppColors.ink.withValues(alpha: 0.08),
                         blurRadius: 6,
                         offset: const Offset(0, -2),
                       ),
@@ -158,7 +153,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                       ),
                       const SizedBox(width: 8),
                       CircleAvatar(
-                        backgroundColor: const Color.fromARGB(255, 5, 153, 138),
+                        backgroundColor: AppColors.forest,
                         child: IconButton(
                           icon: const Icon(Icons.send, color: Colors.white),
                           onPressed: () => _sendMessage(),
@@ -169,8 +164,6 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                 ),
               ),
             ],
-          ),
-        ],
       ),
     );
   }
@@ -191,7 +184,7 @@ class ChatBubble extends StatelessWidget {
         maxWidth: MediaQuery.of(context).size.width * 0.75,
       ),
       decoration: BoxDecoration(
-        color: isBot ? Colors.white : const Color.fromARGB(255, 5, 153, 138),
+        color: isBot ? AppColors.paper : AppColors.forest,
         borderRadius: BorderRadius.only(
           topLeft: const Radius.circular(16),
           topRight: const Radius.circular(16),
@@ -205,7 +198,7 @@ class ChatBubble extends StatelessWidget {
       child: Text(
         message,
         style: TextStyle(
-          color: isBot ? Colors.black : Colors.white,
+          color: isBot ? AppColors.ink : Colors.white,
           fontSize: 18,
         ),
       ),

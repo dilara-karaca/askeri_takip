@@ -25,6 +25,7 @@ dependencies:
   intl: ^0.20.2
   pedometer: ^4.0.1
   google_sign_in: ^6.1.5
+  google_fonts: ^6.2.1
 
 
 dev_dependencies:

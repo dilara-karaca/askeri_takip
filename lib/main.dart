@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-// Screens
 import 'screens/login_email_screen.dart';
 import 'screens/login_phone_screen.dart';
 import 'screens/login_sms_screen.dart';
 import 'screens/map_screen.dart';
-import 'screens/location_service.dart';
 import 'screens/register_patient_screen.dart';
 import 'screens/register_relative_screen.dart';
 import 'screens/forgot_password_screen.dart';
@@ -23,8 +22,9 @@ import 'screens/relative_security.dart';
 import 'screens/relative_help.dart';
 import 'screens/home_page.dart';
 import 'screens/settings.dart' as general_settings;
-import 'screens/chat_bot.dart';
-import 'screens/email_verification_screen.dart';
+import 'theme/app_theme.dart';
+import 'theme/app_colors.dart';
+import 'widgets/docked_nav.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,10 +40,7 @@ class KronikHastaTakipApp extends StatelessWidget {
     return MaterialApp(
       title: 'Kronik Hasta Takip',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-        scaffoldBackgroundColor: const Color(0xFFDFF3EC),
-      ),
+      theme: AppTheme.light,
       initialRoute: '/loginEmail',
       routes: {
         '/loginEmail': (context) => const LoginEmailScreen(),
@@ -57,7 +54,7 @@ class KronikHastaTakipApp extends StatelessWidget {
         '/patientHome': (context) => const AltNavigasyon(),
         '/relativeProfile': (context) => RelativeProfile(),
         '/patientsSecurity': (context) => const RelativeSecurity(),
-        '/patientsHelp': (context) => const RelativeHelp(),
+        '/patientsHelp': (context) => RelativeHelp(),
         '/redirectAfterLogin': (context) => RedirectAfterLogin(),
         '/relativeHome': (context) => RelativeNavigasyon(),
       },
@@ -96,6 +93,7 @@ class RedirectAfterLogin extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
+            backgroundColor: AppColors.canvas,
             body: Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasData) {
@@ -105,16 +103,14 @@ class RedirectAfterLogin extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AltNavigasyon(), // hasta ekranı
+                  builder: (context) => const AltNavigasyon(),
                 ),
               );
             } else if (role == 'relative') {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder:
-                      (context) =>
-                          const RelativeNavigasyon(), // ✅ hasta yakını menü barlı ekran
+                  builder: (context) => const RelativeNavigasyon(),
                 ),
               );
             } else {
@@ -125,12 +121,13 @@ class RedirectAfterLogin extends StatelessWidget {
           });
         } else {
           return const Scaffold(
+            backgroundColor: AppColors.canvas,
             body: Center(
               child: Text("Giriş başarısız veya kullanıcı verisi yok."),
             ),
           );
         }
-        return const SizedBox(); // boş widget
+        return const SizedBox();
       },
     );
   }
@@ -151,52 +148,26 @@ class _RelativeNavigasyonState extends State<RelativeNavigasyon> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: _sayfalar[_seciliIndex],
-      floatingActionButton: SizedBox(
-        width: 80,
-        height: 80,
-        child: FloatingActionButton(
-          backgroundColor: Colors.red,
-          shape: const CircleBorder(),
-          child: const Icon(Icons.location_on, size: 36, color: Colors.white),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => MapScreen()),
-            );
-          },
+      floatingActionButton: EmergencyFab(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MapScreen()),
+          );
+        },
+        child: const Icon(
+          Icons.location_on_rounded,
+          size: 38,
+          color: Colors.white,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        color: const Color(0xFF18202B),
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 6,
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                icon: Icon(
-                  Icons.home,
-                  size: 45,
-                  color: _seciliIndex == 0 ? Colors.white : Colors.grey,
-                ),
-                onPressed: () => setState(() => _seciliIndex = 0),
-              ),
-              const SizedBox(width: 40),
-              IconButton(
-                icon: Icon(
-                  Icons.settings,
-                  size: 45,
-                  color: _seciliIndex == 1 ? Colors.red : Colors.white,
-                ),
-                onPressed: () => setState(() => _seciliIndex = 1),
-              ),
-            ],
-          ),
-        ),
+      bottomNavigationBar: _AppBottomBar(
+        selectedIndex: _seciliIndex,
+        onHome: () => setState(() => _seciliIndex = 0),
+        onSettings: () => setState(() => _seciliIndex = 1),
       ),
     );
   }
@@ -220,59 +191,120 @@ class _AltNavigasyonState extends State<AltNavigasyon> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: _sayfalar[_seciliIndex],
-      floatingActionButton: SizedBox(
-        width: 80,
-        height: 80,
-        child: FloatingActionButton(
-          backgroundColor: Colors.red,
-          shape: const CircleBorder(),
-          child: const Text(
-            "ACİL",
-            style: TextStyle(
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-              fontSize: 20,
-            ),
+      floatingActionButton: EmergencyFab(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Emergency()),
+          );
+        },
+        child: Text(
+          "ACİL",
+          style: GoogleFonts.sourceSans3(
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+            fontSize: 18,
+            letterSpacing: 0.6,
           ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Emergency()),
-            );
-          },
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        color: const Color(0xFF18202B),
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 6,
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                icon: Icon(
-                  Icons.home,
-                  color: _seciliIndex == 0 ? Colors.white : Colors.grey,
-                  size: 45,
-                ),
-                onPressed: () => setState(() => _seciliIndex = 0),
+      bottomNavigationBar: _AppBottomBar(
+        selectedIndex: _seciliIndex,
+        onHome: () => setState(() => _seciliIndex = 0),
+        onSettings: () => setState(() => _seciliIndex = 1),
+      ),
+    );
+  }
+}
+
+class _AppBottomBar extends StatelessWidget {
+  final int selectedIndex;
+  final VoidCallback onHome;
+  final VoidCallback onSettings;
+
+  const _AppBottomBar({
+    required this.selectedIndex,
+    required this.onHome,
+    required this.onSettings,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomAppBar(
+      color: AppColors.forest,
+      elevation: 0,
+      clipBehavior: Clip.none,
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 8,
+      padding: EdgeInsets.zero,
+      child: SizedBox(
+        height: 68,
+        child: Row(
+          children: [
+            Expanded(
+              child: _NavTab(
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home_rounded,
+                label: 'Ana Sayfa',
+                selected: selectedIndex == 0,
+                onTap: onHome,
               ),
-              const SizedBox(width: 40),
-              IconButton(
-                icon: Icon(
-                  Icons.settings,
-                  color: _seciliIndex == 1 ? Colors.red : Colors.white,
-                  size: 45,
-                ),
-                onPressed: () => setState(() => _seciliIndex = 1),
+            ),
+            const SizedBox(width: 108),
+            Expanded(
+              child: _NavTab(
+                icon: Icons.settings_outlined,
+                activeIcon: Icons.settings_rounded,
+                label: 'Ayarlar',
+                selected: selectedIndex == 1,
+                onTap: onSettings,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+class _NavTab extends StatelessWidget {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _NavTab({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = selected ? Colors.white : const Color(0xFF9BB0A8);
+
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(selected ? activeIcon : icon, color: color, size: 24),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            style: GoogleFonts.sourceSans3(
+              fontSize: 11,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }

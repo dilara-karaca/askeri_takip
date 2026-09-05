@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_page.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_button.dart';
+import '../widgets/app_field.dart';
+import '../widgets/app_segmented.dart';
+import '../widgets/auth_header.dart';
 
 class LoginEmailScreen extends StatefulWidget {
   const LoginEmailScreen({super.key});
@@ -122,271 +129,105 @@ class _LoginEmailScreenState extends State<LoginEmailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          final screenHeight = constraints.maxHeight;
-          final screenWidth = constraints.maxWidth;
-
-          return Stack(
+    return AppPage(
+      resizeToAvoidBottomInset: true,
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(
+            top: 28,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 28,
+            left: 24,
+            right: 24,
+          ),
+          child: Column(
             children: [
-              Positioned.fill(
-                child: Transform.scale(
-                  scale: 1.05,
-                  child: Image.asset(
-                    'images/ana_sayfa_arkaplan.png',
-                    fit: BoxFit.cover,
-                    width: screenWidth,
-                    height: screenHeight,
-                    alignment: Alignment.center,
-                  ),
-                ),
+              const AuthHeader(
+                title: 'Kronik Hasta Takip',
+                subtitle: 'Hesabınıza giriş yapın',
               ),
-              SafeArea(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                    top: 130,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-                    left: 24,
-                    right: 24,
-                  ),
-                  child: Column(
-                    children: [
-                      SizedBox(height: screenHeight * 0.2),
-                      Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
-                          borderRadius: BorderRadius.circular(32),
+              const SizedBox(height: 28),
+              AppCard(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    AppSegmented(
+                      labels: const ['E-mail', 'Telefon No'],
+                      selectedIndex: 0,
+                      onChanged: (index) {
+                        if (index == 1) {
+                          Navigator.pushNamed(context, '/loginPhone');
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    AppField(
+                      controller: emailController,
+                      label: 'E-mail',
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 12),
+                    AppField(
+                      controller: passwordController,
+                      label: 'Şifre',
+                      obscureText: obscurePassword,
+                      suffix: IconButton(
+                        icon: Icon(
+                          obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: AppColors.muted,
+                          size: 20,
                         ),
-                        child: Column(
-                          children: [
-                            _buildSwitchTabs(context),
-                            const SizedBox(height: 20),
-                            _buildEmailField(),
-                            const SizedBox(height: 15),
-                            _buildPasswordField(),
-                            const SizedBox(height: 15),
-                            _buildLoginButton(),
-                            const SizedBox(height: 8),
-                            _buildForgotPassword(context),
-                            const SizedBox(height: 15),
-                            _buildGoogleSignInButton(),
-                            const SizedBox(height: 10),
-                            _buildRegisterButton(),
-                          ],
-                        ),
+                        onPressed: () {
+                          setState(() {
+                            obscurePassword = !obscurePassword;
+                          });
+                        },
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/forgotPassword');
+                        },
+                        child: const Text('Şifremi Unuttum'),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    AppButton(label: 'Giriş Yap', onPressed: loginWithEmail),
+                    const SizedBox(height: 12),
+                    OutlinedButton(
+                      onPressed: signInWithGoogle,
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 52),
+                        backgroundColor: AppColors.paper,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'images/google_icon.jpeg',
+                            height: 20,
+                            width: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          const Text('Google ile Giriş Yap'),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/registerPatient');
+                      },
+                      child: const Text('Hesabınız yok mu? Kayıt Olun'),
+                    ),
+                  ],
                 ),
               ),
             ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildGoogleSignInButton() {
-    return OutlinedButton(
-      style: OutlinedButton.styleFrom(
-        backgroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        side: const BorderSide(color: Colors.grey),
-      ),
-      onPressed: signInWithGoogle,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset('images/google_icon.jpeg', height: 24, width: 24),
-          const SizedBox(width: 10),
-          const Text(
-            'Google ile Giriş Yap',
-            style: TextStyle(
-              color: Colors.black87,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRegisterButton() {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(context, '/registerPatient');
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white, width: 2),
-        ),
-        child: const Center(
-          child: Text(
-            'Hesabınız yok mu? Kayıt Olun',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSwitchTabs(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextButton(
-              onPressed: () {},
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.black87,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    bottomLeft: Radius.circular(24),
-                  ),
-                ),
-              ),
-              child: const Text(
-                'E-mail',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/loginPhone');
-              },
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(24),
-                    bottomRight: Radius.circular(24),
-                  ),
-                ),
-              ),
-              child: const Text(
-                'Telefon No',
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmailField() {
-    return TextField(
-      controller: emailController,
-      keyboardType: TextInputType.emailAddress,
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.white,
-        hintText: 'E-mail',
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 20,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return TextField(
-      controller: passwordController,
-      obscureText: obscurePassword,
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.white,
-        hintText: 'Şifre',
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 20,
-        ),
-        suffixIcon: IconButton(
-          icon: Icon(obscurePassword ? Icons.visibility_off : Icons.visibility),
-          onPressed: () {
-            setState(() {
-              obscurePassword = !obscurePassword;
-            });
-          },
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoginButton() {
-    return GestureDetector(
-      onTap: loginWithEmail,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: const Color(0xFFCDE7DA),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.black, width: 2),
-        ),
-        child: const Center(
-          child: Text(
-            'Giriş Yap',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildForgotPassword(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: TextButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/forgotPassword');
-        },
-        child: const Text(
-          'Şifremi Unuttum',
-          style: TextStyle(
-            color: Colors.grey,
-            decoration: TextDecoration.underline,
-            fontSize: 14,
           ),
         ),
       ),

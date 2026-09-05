@@ -1,21 +1,3 @@
-// android/build.gradle.kts
-
-plugins {
-    // Firebase eklentisi burada tanımlanmalı
-    id("com.google.gms.google-services") version "4.3.15" apply false
-}
-
-buildscript {
-    dependencies {
-        classpath("com.google.gms:google-services:4.3.15") // ✅ Firebase için gerekli classpath
-    }
-
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
 allprojects {
     repositories {
         google()

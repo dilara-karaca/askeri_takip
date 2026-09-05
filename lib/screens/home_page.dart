@@ -8,6 +8,13 @@ import 'location_service.dart';
 import 'package:kronik_hasta_takip/screens/bluetooth_manager.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pedometer/pedometer.dart';
+import 'package:kronik_hasta_takip/services/patient_code_service.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_page.dart';
+import '../widgets/app_card.dart';
+import '../widgets/metric_tile.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -47,6 +54,8 @@ class _HomePageState extends State<HomePage> {
 
   double _botTop = 600;
   double _botLeft = 20;
+  final PageController _heartPageController = PageController();
+  final PageController _pressurePageController = PageController();
 
   @override
   void initState() {
@@ -83,6 +92,10 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         userData = doc.data();
       });
+      await PatientCodeService.ensureMapped(
+        uid,
+        doc.data()?['patientCode'] as String?,
+      );
     }
   }
 
@@ -92,6 +105,8 @@ class _HomePageState extends State<HomePage> {
     dataSubscription?.cancel();
     refreshTimer?.cancel();
     bpmTimer?.cancel();
+    _heartPageController.dispose();
+    _pressurePageController.dispose();
     super.dispose();
   }
 
@@ -139,165 +154,155 @@ class _HomePageState extends State<HomePage> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFEAF4F4),
-      body:
+    return AppPage(
+      child:
           userData == null
               ? const Center(child: CircularProgressIndicator())
               : Stack(
                 children: [
-                  Container(
-                    height: screenHeight,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        image: AssetImage("images/arka_plan.png"),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    child: SafeArea(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.04,
-                                vertical: screenHeight * 0.015,
+                  SafeArea(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 110),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const CircleAvatar(
+                                radius: 24,
+                                backgroundImage: AssetImage(
+                                  'images/person.png',
+                                ),
                               ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  userData?['name'] ?? '...',
+                                  style: GoogleFonts.fraunces(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.ink,
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    showPatientCode = !showPatientCode;
+                                  });
+                                },
+                                child: AppCard(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  child: Row(
                                     children: [
-                                      const CircleAvatar(
-                                        radius: 24,
-                                        backgroundImage: AssetImage(
-                                          'images/person.png',
+                                      Text(
+                                        showPatientCode
+                                            ? (userData?['patientCode'] ??
+                                                'Kod yok')
+                                            : "Hasta Kodu",
+                                        style: GoogleFonts.sourceSans3(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.ink,
                                         ),
                                       ),
-                                      const SizedBox(width: 10),
-                                      Text(
-                                        userData?['name'] ?? '...',
-                                        style: TextStyle(
-                                          fontSize: screenWidth * 0.055,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                      const SizedBox(width: 6),
+                                      Icon(
+                                        showPatientCode
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                        size: 18,
+                                        color: AppColors.muted,
                                       ),
                                     ],
                                   ),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: screenWidth * 0.03,
-                                      vertical: screenHeight * 0.008,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.black12,
-                                          blurRadius: 4,
-                                          offset: Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          showPatientCode
-                                              ? (userData?['patientCode'] ??
-                                                  'Kod yok')
-                                              : "Hasta Kodu",
-                                          style: TextStyle(
-                                            fontSize: screenWidth * 0.048,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              showPatientCode =
-                                                  !showPatientCode;
-                                            });
-                                          },
-                                          child: Icon(
-                                            showPatientCode
-                                                ? Icons.visibility
-                                                : Icons.visibility_off,
-                                            size: screenWidth * 0.05,
-                                            color: Colors.grey[700],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 18),
+                          SizedBox(
+                            height: screenHeight * 0.3,
+                            child: PageView(
+                              controller: _heartPageController,
+                              children: [
+                                _buildHeartCard(screenWidth),
+                                _buildHeartGraphCard(
+                                  screenHeight,
+                                  screenWidth,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Center(
+                            child: SmoothPageIndicator(
+                              controller: _heartPageController,
+                              count: 2,
+                              effect: const ExpandingDotsEffect(
+                                dotHeight: 6,
+                                dotWidth: 6,
+                                expansionFactor: 3,
+                                spacing: 5,
+                                activeDotColor: AppColors.forest,
+                                dotColor: AppColors.sage,
                               ),
                             ),
-                            SizedBox(height: screenHeight * 0.015),
-                            SizedBox(
-                              height: screenHeight * 0.3,
-                              child: PageView(
-                                children: [
-                                  _buildHeartCard(screenWidth),
-                                  _buildHeartGraphCard(
-                                    screenHeight,
-                                    screenWidth,
-                                  ),
-                                ],
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            height: screenHeight * 0.3,
+                            child: PageView(
+                              controller: _pressurePageController,
+                              children: [
+                                _buildPressureCard(screenWidth),
+                                _buildPressureGraphCard(screenWidth),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Center(
+                            child: SmoothPageIndicator(
+                              controller: _pressurePageController,
+                              count: 2,
+                              effect: const ExpandingDotsEffect(
+                                dotHeight: 6,
+                                dotWidth: 6,
+                                expansionFactor: 3,
+                                spacing: 5,
+                                activeDotColor: AppColors.forest,
+                                dotColor: AppColors.sage,
                               ),
                             ),
-                            SizedBox(height: screenHeight * 0.02),
-                            SizedBox(
-                              height: screenHeight * 0.3,
-                              child: PageView(
-                                children: [
-                                  _buildPressureCard(screenWidth),
-                                  _buildPressureGraphCard(screenWidth),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: screenHeight * 0.025),
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.04,
-                              ),
-                              child: Column(
-                                children: [
-                                  _buildBottomCard(
-                                    "Adım Sayısı",
-                                    "images/ayak.png",
-                                    "${sensorData['STEPS']} Adım",
-                                    screenWidth,
-                                  ),
-
-                                  _buildBottomCard(
-                                    "Kan Oksijen Seviyesi",
-                                    "images/kan.png",
-                                    "96%",
-                                    screenWidth,
-                                  ),
-                                  _buildBottomCard(
-                                    "Stres Seviyesi",
-                                    "images/stressed.png",
-                                    "Düşük",
-                                    screenWidth,
-                                  ),
-                                  _buildBottomCard(
-                                    "Vücut Isısı",
-                                    "images/temp.png",
-                                    currentTemp != null
-                                        ? "${currentTemp!.toStringAsFixed(1)}°C"
-                                        : "-",
-                                    screenWidth,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: screenHeight * 0.03),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 18),
+                          MetricTile(
+                            title: "Adım Sayısı",
+                            imagePath: "images/ayak.png",
+                            value: "${sensorData['STEPS']} Adım",
+                          ),
+                          const MetricTile(
+                            title: "Kan Oksijen Seviyesi",
+                            imagePath: "images/kan.png",
+                            value: "96%",
+                          ),
+                          const MetricTile(
+                            title: "Stres Seviyesi",
+                            imagePath: "images/stressed.png",
+                            value: "Düşük",
+                          ),
+                          MetricTile(
+                            title: "Vücut Isısı",
+                            imagePath: "images/temp.png",
+                            value:
+                                currentTemp != null
+                                    ? "${currentTemp!.toStringAsFixed(1)}°C"
+                                    : "-",
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -330,22 +335,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildHeartCard(double screenWidth) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    return AppCard(
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -453,28 +444,12 @@ class _HomePageState extends State<HomePage> {
               ),
           ],
         ),
-      ),
     );
   }
 
   Widget _buildHeartGraphCard(double screenHeight, double screenWidth) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-      child: Container(
-        height: screenHeight * 0.28,
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    return AppCard(
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -528,27 +503,12 @@ class _HomePageState extends State<HomePage> {
                 ),
           ],
         ),
-      ),
     );
   }
 
   Widget _buildPressureCard(double screenWidth) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    return AppCard(
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -617,28 +577,12 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-      ),
     );
   }
 
   Widget _buildPressureGraphCard(double screenWidth) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-      child: Container(
-        height: 200,
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    return AppCard(
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -705,49 +649,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildBottomCard(
-    String title,
-    String imagePath,
-    String value,
-    double screenWidth,
-  ) {
-    return Container(
-      height: 85,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
-        ],
-      ),
-      child: Row(
-        children: [
-          Image.asset(imagePath, width: 50, height: 50),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: screenWidth * 0.05,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: screenWidth * 0.07,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -764,12 +665,12 @@ class _HomePageState extends State<HomePage> {
         height: screenWidth * 0.18,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.white,
+          color: AppColors.paper,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
+              color: AppColors.ink.withValues(alpha: 0.18),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),

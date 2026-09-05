@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_page.dart';
+import '../widgets/metric_tile.dart';
 
 class RelativeHomePage extends StatefulWidget {
   @override
@@ -185,180 +189,124 @@ class RelativeHomePageState extends State<RelativeHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     final displayName =
         isLoading || patientName == null
             ? null
             : "${getPossessiveSuffix(patientName!.split(' ').first)}";
 
-    final TextStyle dynamicTitleStyle = TextStyle(
-      fontSize: screenWidth * 0.045,
-      fontWeight: FontWeight.w600,
-      color: Colors.black,
-    );
-
-    final TextStyle dynamicValueStyle = TextStyle(
-      fontSize: screenWidth * 0.065,
-      fontWeight: FontWeight.w900,
-      color: Colors.black,
-    );
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            isLoading ? "Merhaba" : "Merhaba ${relativeName ?? ''}",
-            style: TextStyle(
-              fontSize: screenWidth * 0.065,
-              color: Colors.black,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        actions: [
-          Stack(
-            alignment: Alignment.topRight,
-            children: [
-              IconButton(
-                icon: const Icon(
-                  Icons.notifications,
-                  size: 30,
-                  color: Colors.black,
-                ),
-                onPressed: () async {
-                  await fetchNotifications();
-                  _showNotificationsPanel();
-                },
-              ),
-              if (notificationCount > 0)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 20,
-                      minHeight: 20,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$notificationCount',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
+    return AppPage(
+      child: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 12, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      isLoading ? "Merhaba" : "Merhaba ${relativeName ?? ''}",
+                      style: GoogleFonts.fraunces(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.ink,
                       ),
                     ),
                   ),
-                ),
-            ],
-          ),
-        ],
-
-        iconTheme: const IconThemeData(color: Colors.black),
-        elevation: 1,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('images/arka_plan.png'),
-            fit: BoxFit.cover,
-            alignment: Alignment.topCenter,
-          ),
-        ),
-        width: double.infinity,
-        height: double.infinity,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              isLoading
-                  ? const CircularProgressIndicator()
-                  : Text(
-                    "$displayName Verileri",
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.06,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.notifications_outlined,
+                          size: 28,
+                          color: AppColors.ink,
+                        ),
+                        onPressed: () async {
+                          await fetchNotifications();
+                          _showNotificationsPanel();
+                        },
+                      ),
+                      if (notificationCount > 0)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: AppColors.emergency,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 20,
+                              minHeight: 20,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '$notificationCount',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-              const SizedBox(height: 16),
-              buildInfoCard(
-                title: 'Kalp Atışı',
-                value: '67 bpm',
-                icon: Image.asset('images/kalp.png', width: 42, height: 42),
-                titleStyle: dynamicTitleStyle,
-                valueStyle: dynamicValueStyle,
+                ],
               ),
-              buildInfoCard(
-                title: 'Tansiyon',
-                value: '126/70',
-                icon: Image.asset('images/tansiyon.png', width: 42, height: 42),
-                titleStyle: dynamicTitleStyle,
-                valueStyle: dynamicValueStyle,
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 110),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    isLoading
+                        ? const CircularProgressIndicator()
+                        : Text(
+                          "$displayName Verileri",
+                          style: GoogleFonts.sourceSans3(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.muted,
+                          ),
+                        ),
+                    const SizedBox(height: 16),
+                    const MetricTile(
+                      title: 'Kalp Atışı',
+                      value: '67 bpm',
+                      imagePath: 'images/kalp.png',
+                    ),
+                    const MetricTile(
+                      title: 'Tansiyon',
+                      value: '126/70',
+                      imagePath: 'images/tansiyon.png',
+                    ),
+                    const MetricTile(
+                      title: 'Vücut Sıcaklığı',
+                      value: '37°C',
+                      imagePath: 'images/temp.png',
+                    ),
+                    const MetricTile(
+                      title: 'Kan Oksijen',
+                      value: '96 %',
+                      imagePath: 'images/kan.png',
+                    ),
+                    const MetricTile(
+                      title: 'Stres Seviyesi',
+                      value: 'Düşük',
+                      imagePath: 'images/stressed.png',
+                    ),
+                  ],
+                ),
               ),
-              buildInfoCard(
-                title: 'Vücut Sıcaklığı',
-                value: '37°C',
-                icon: Image.asset('images/temp.png', width: 42, height: 42),
-                titleStyle: dynamicTitleStyle,
-                valueStyle: dynamicValueStyle,
-              ),
-              buildInfoCard(
-                title: 'Kan Oksijen',
-                value: '96 %',
-                icon: Image.asset('images/kan.png', width: 42, height: 42),
-                titleStyle: dynamicTitleStyle,
-                valueStyle: dynamicValueStyle,
-              ),
-              buildInfoCard(
-                title: 'Stres Seviyesi',
-                value: 'Düşük',
-                icon: Image.asset('images/stressed.png', width: 42, height: 42),
-                titleStyle: dynamicTitleStyle,
-                valueStyle: dynamicValueStyle,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget buildInfoCard({
-    required String title,
-    required String value,
-    required Widget icon,
-    required TextStyle titleStyle,
-    required TextStyle valueStyle,
-    Color backgroundColor = Colors.white,
-  }) {
-    return Container(
-      height: 80,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
-        ],
-      ),
-      child: Row(
-        children: [
-          icon,
-          const SizedBox(width: 12),
-          Expanded(child: Text(title, style: titleStyle)),
-          Text(value, style: valueStyle),
-        ],
-      ),
-    );
-  }
 }

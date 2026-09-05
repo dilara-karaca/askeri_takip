@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import '../widgets/app_page.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_button.dart';
+import '../widgets/app_app_bar.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {
   const ForgotPasswordScreen({super.key});
@@ -7,48 +11,39 @@ class ForgotPasswordScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextEditingController phoneController = TextEditingController();
 
-    return Scaffold(
+    return AppPage(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: const AppBackButton(),
+        title: const Text('Şifremi Unuttum'),
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('images/arka_plan.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: AppCard(
+          padding: const EdgeInsets.all(22),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 10),
-              const Text(
+              Text(
                 'Şifremi Unuttum',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 8),
+              Text(
+                'Kayıtlı telefon numaranızı girin.',
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 22),
               TextField(
                 controller: phoneController,
                 keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Telefon Numarası',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
                 ),
               ),
               const SizedBox(height: 18),
-              ElevatedButton(
+              AppButton(
+                label: 'SMS Gönder',
                 onPressed: () {
                   final phone = phoneController.text.trim();
                   if (phone.isEmpty) {
@@ -58,15 +53,8 @@ class ForgotPasswordScreen extends StatelessWidget {
                     return;
                   }
 
-                  // Normalde burada Firebase ile SMS gönderimi yapılır.
-                  // Bu demo yapıda doğrudan doğrulama ekranına yönlendiriyoruz.
                   Navigator.pushNamed(context, '/forgotVerify');
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 176, 196, 187),
-                  foregroundColor: Colors.black,
-                ),
-                child: const Text("SMS Gönder", style: TextStyle(fontSize: 22)),
               ),
             ],
           ),

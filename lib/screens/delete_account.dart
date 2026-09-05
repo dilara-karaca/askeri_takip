@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_page.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_button.dart';
+import '../widgets/app_app_bar.dart';
 
 class DeleteAccountPage extends StatelessWidget {
   const DeleteAccountPage({super.key});
@@ -67,65 +72,41 @@ class DeleteAccountPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFEAF4F4),
+    return AppPage(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        title: const Text(
-          'Hesabı Kapat',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
+        leading: const AppBackButton(),
+        title: const Text('Hesabı Kapat'),
       ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset('images/arka_plan.png', fit: BoxFit.cover),
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.warning_amber_rounded,
-                    size: 100,
-                    color: Colors.red,
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Bu işlem sonrasında hesabınızı kalıcı olarak silecektir.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 40),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.delete, color: Colors.white),
-                    label: const Text(
-                      "Hesabımı Sil",
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF305058),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 14,
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    onPressed: () => _showDeleteDialog(context),
-                  ),
-                ],
-              ),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: AppCard(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  size: 72,
+                  color: AppColors.danger,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Bu işlem sonrasında hesabınızı kalıcı olarak silecektir.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 28),
+                AppButton(
+                  label: 'Hesabımı Sil',
+                  icon: Icons.delete,
+                  backgroundColor: AppColors.danger,
+                  onPressed: () => _showDeleteDialog(context),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

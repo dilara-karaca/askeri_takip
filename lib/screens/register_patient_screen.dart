@@ -1,9 +1,16 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:kronik_hasta_takip/screens/email_verification_screen.dart';
+import 'package:kronik_hasta_takip/services/patient_code_service.dart';
+import '../widgets/app_page.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_button.dart';
+import '../widgets/app_field.dart';
+import '../widgets/app_segmented.dart';
+import '../widgets/auth_header.dart';
+import '../widgets/app_app_bar.dart';
 
 class RegisterPatientScreen extends StatefulWidget {
   const RegisterPatientScreen({super.key});
@@ -50,92 +57,45 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFDFF3EC),
-      body: SafeArea(
+    return AppPage(
+      appBar: AppBar(leading: const AppBackButton()),
+      child: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.black),
-                  onPressed: () => Navigator.pop(context),
-                ),
+              const AuthHeader(
+                title: 'Kronik Hasta Takip',
+                subtitle: 'Hasta kaydı',
               ),
-              const SizedBox(height: 10),
-              const Text(
-                'Kronik Hasta Takip',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: Image.asset(
-                  'images/adsiz_tasarim_14.png',
-                  width: 100,
-                  height: 100,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildUserTypeButtons(context),
               const SizedBox(height: 20),
-              _buildTextFields(),
-              _buildPhysicalInputs(),
-              _buildDropdowns(),
-              _buildDiseaseSelection(),
-              const SizedBox(height: 32),
-              GestureDetector(
-                onTap: _registerPatient,
-                child: Image.asset('images/frame_60.png', width: 120),
+              AppSegmented(
+                labels: const ['Hasta', 'Hasta Yakını'],
+                selectedIndex: 0,
+                onChanged: (index) {
+                  if (index == 1) {
+                    Navigator.pushNamed(context, '/registerRelative');
+                  }
+                },
               ),
+              const SizedBox(height: 20),
+              AppCard(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  children: [
+                    _buildTextFields(),
+                    _buildPhysicalInputs(),
+                    _buildDropdowns(),
+                    _buildDiseaseSelection(),
+                    const SizedBox(height: 20),
+                    AppButton(label: 'Kayıt Ol', onPressed: _registerPatient),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildUserTypeButtons(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextButton(
-              onPressed: () {},
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.black87,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-              child: const Text('Hasta', style: TextStyle(color: Colors.white)),
-            ),
-          ),
-          Expanded(
-            child: TextButton(
-              onPressed:
-                  () => Navigator.pushNamed(context, '/registerRelative'),
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-              child: const Text(
-                'Hasta Yakını',
-                style: TextStyle(color: Colors.black87),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -148,19 +108,11 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
         buildInputField(label: 'E-posta', controller: emailController),
         Padding(
           padding: const EdgeInsets.only(bottom: 12.0),
-          child: TextField(
+          child: AppField(
             controller: phoneController,
+            label: 'Telefon Numarası',
+            prefixText: '+90 ',
             keyboardType: TextInputType.phone,
-            decoration: InputDecoration(
-              labelText: 'Telefon Numarası',
-              prefixText: '+90 ',
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-            ),
           ),
         ),
         buildInputField(
@@ -189,14 +141,9 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
                 });
               }
             },
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12.0,
-                vertical: 16.0,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+            child: InputDecorator(
+              decoration: const InputDecoration(
+                labelText: 'Doğum Tarihi',
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -224,18 +171,10 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
-      child: TextField(
+      child: AppField(
         controller: controller,
+        label: label,
         obscureText: obscureText,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-        ),
       ),
     );
   }
@@ -392,25 +331,9 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
       // 2. Doğrulama maili gönder
       await userCredential.user?.sendEmailVerification();
 
-      // 3. Benzersiz hasta kodu üret
-      String generatePatientCode() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        final rand = Random();
-        return 'HT${List.generate(4, (index) => chars[rand.nextInt(chars.length)]).join()}';
-      }
-
-      String patientCode;
-      bool codeExists;
-
-      do {
-        patientCode = generatePatientCode();
-        final existing =
-            await FirebaseFirestore.instance
-                .collection('patients')
-                .where('patientCode', isEqualTo: patientCode.toUpperCase())
-                .get();
-        codeExists = existing.docs.isNotEmpty;
-      } while (codeExists);
+      final patientCode = await PatientCodeService.allocateUnique(
+        userCredential.user!.uid,
+      );
 
       // 4. Firestore'a hasta verilerini kaydet
       await FirebaseFirestore.instance

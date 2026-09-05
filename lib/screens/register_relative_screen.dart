@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:kronik_hasta_takip/services/patient_code_service.dart';
+import '../widgets/app_page.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_button.dart';
+import '../widgets/app_field.dart';
+import '../widgets/app_segmented.dart';
+import '../widgets/auth_header.dart';
+import '../widgets/app_app_bar.dart';
 
 class RegisterRelativeScreen extends StatefulWidget {
   const RegisterRelativeScreen({super.key});
@@ -21,114 +29,73 @@ class _RegisterRelativeScreenState extends State<RegisterRelativeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFDFF3EC),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFDFF3EC),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SafeArea(
+    return AppPage(
+      appBar: AppBar(leading: const AppBackButton()),
+      child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
-                'Kronik Hasta Takip',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              const AuthHeader(
+                title: 'Kronik Hasta Takip',
+                subtitle: 'Hasta yakını kaydı',
               ),
               const SizedBox(height: 20),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: Image.asset(
-                  'images/adsiz_tasarim_14.png',
-                  width: 120,
-                  height: 120,
-                ),
+              AppSegmented(
+                labels: const ['Hasta', 'Hasta Yakını'],
+                selectedIndex: 1,
+                onChanged: (index) {
+                  if (index == 0) {
+                    Navigator.pushNamed(context, '/registerPatient');
+                  }
+                },
               ),
               const SizedBox(height: 20),
-              _buildUserTypeSwitch(),
-              const SizedBox(height: 20),
-              buildInputField(label: 'Ad', controller: nameController),
-              buildInputField(label: 'Soyad', controller: surnameController),
-              buildInputField(label: 'E-posta', controller: emailController),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: TextField(
-                  controller: phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    labelText: 'Telefon Numarası',
-                    prefixText: '+90 ',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+              AppCard(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  children: [
+                    buildInputField(label: 'Ad', controller: nameController),
+                    buildInputField(
+                      label: 'Soyad',
+                      controller: surnameController,
                     ),
-                  ),
+                    buildInputField(
+                      label: 'E-posta',
+                      controller: emailController,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: AppField(
+                        controller: phoneController,
+                        label: 'Telefon Numarası',
+                        prefixText: '+90 ',
+                        keyboardType: TextInputType.phone,
+                      ),
+                    ),
+                    buildInputField(
+                      label: 'Şifre',
+                      controller: passwordController,
+                      obscureText: true,
+                    ),
+                    buildInputField(
+                      label: 'Şifre Tekrar',
+                      controller: confirmPasswordController,
+                      obscureText: true,
+                    ),
+                    buildInputField(
+                      label: 'Hasta Bağlantı Kodu',
+                      controller: patientCodeController,
+                    ),
+                    const SizedBox(height: 8),
+                    AppButton(label: 'Kayıt Ol', onPressed: _registerRelative),
+                  ],
                 ),
               ),
-
-              buildInputField(
-                label: 'Şifre',
-                controller: passwordController,
-                obscureText: true,
-              ),
-              buildInputField(
-                label: 'Şifre Tekrar',
-                controller: confirmPasswordController,
-                obscureText: true,
-              ),
-              buildInputField(
-                label: 'Hasta Bağlantı Kodu',
-                controller: patientCodeController,
-              ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: _registerRelative,
-                child: Image.asset('images/frame_60.png', width: 120),
-              ),
+              const SizedBox(height: 24),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildUserTypeSwitch() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextButton(
-              onPressed: () => Navigator.pushNamed(context, '/registerPatient'),
-              child: const Text(
-                'Hasta',
-                style: TextStyle(color: Colors.black87),
-              ),
-            ),
-          ),
-          Expanded(
-            child: TextButton(
-              onPressed: () {},
-              style: TextButton.styleFrom(backgroundColor: Colors.black87),
-              child: const Text(
-                'Hasta Yakını',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -140,18 +107,10 @@ class _RegisterRelativeScreenState extends State<RegisterRelativeScreen> {
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
-      child: TextField(
+      child: AppField(
         controller: controller,
+        label: label,
         obscureText: obscureText,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-        ),
       ),
     );
   }
@@ -191,28 +150,18 @@ class _RegisterRelativeScreenState extends State<RegisterRelativeScreen> {
     }
 
     try {
-      final patientQuery =
-          await FirebaseFirestore.instance
-              .collection('patients')
-              .where(
-                'patientCode',
-                isEqualTo: patientCode,
-              ) // Büyük harf ile eşleşme
-              .limit(1)
-              .get();
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+      final relativeUid = userCredential.user!.uid;
 
-      if (patientQuery.docs.isEmpty) {
+      final patientId = await PatientCodeService.patientIdFor(patientCode);
+      if (patientId == null) {
+        await userCredential.user?.delete();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Geçersiz hasta bağlantı kodu.")),
         );
         return;
       }
-
-      final patientId = patientQuery.docs.first.id;
-
-      final userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
-      final relativeUid = userCredential.user!.uid;
 
       await FirebaseFirestore.instance
           .collection('relatives')

@@ -1,49 +1,36 @@
 import 'package:flutter/material.dart';
+import '../widgets/app_page.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_button.dart';
+import '../widgets/app_app_bar.dart';
 
 class ForgotVerifyScreen extends StatelessWidget {
   final TextEditingController smsCodeController = TextEditingController();
 
+  ForgotVerifyScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppPage(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: const Text("SMS Doğrulama"),
-        backgroundColor: Colors.white,
-        elevation: 1,
-        iconTheme: const IconThemeData(color: Colors.black),
-        centerTitle: true,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('images/arka_plan.png'),
-            fit: BoxFit.cover,
-            alignment: Alignment.topCenter,
-          ),
-        ),
-        width: double.infinity,
-        height: double.infinity,
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: AppCard(
+          padding: const EdgeInsets.all(22),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 20),
               TextField(
                 controller: smsCodeController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'SMS Kodu',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
+                decoration: const InputDecoration(labelText: 'SMS Kodu'),
               ),
               const SizedBox(height: 24),
-              ElevatedButton(
+              AppButton(
+                label: 'Devam Et',
                 onPressed: () {
                   final code = smsCodeController.text.trim();
                   if (code.isEmpty) {
@@ -53,16 +40,9 @@ class ForgotVerifyScreen extends StatelessWidget {
                     return;
                   }
 
-                  // Demo mantıkta doğrulama başarılı kabul edilir
                   Navigator.pushNamed(context, '/resetPassword');
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 176, 196, 187),
-                  foregroundColor: Colors.black,
-                ),
-                child: const Text("Devam Et", style: TextStyle(fontSize: 22)),
               ),
-              const SizedBox(height: 24),
             ],
           ),
         ),

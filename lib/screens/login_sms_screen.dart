@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_page.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_button.dart';
+import '../widgets/app_app_bar.dart';
+import '../widgets/auth_header.dart';
 
 class LoginSmsScreen extends StatefulWidget {
   const LoginSmsScreen({super.key});
@@ -81,115 +86,62 @@ class _LoginSmsScreenState extends State<LoginSmsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFDFF3EC),
+    return AppPage(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFDFF3EC),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        leading: const AppBackButton(),
+        title: const Text('SMS Doğrulama'),
       ),
-      body: SafeArea(
+      child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 10),
-              const Text(
-                'Kronik Hasta Takip',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              const AuthHeader(
+                title: 'Kronik Hasta Takip',
+                subtitle: 'SMS kodunu girin',
+                logoSize: 96,
               ),
-              const SizedBox(height: 20),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: Image.asset(
-                  'images/adsiz_tasarim_14.png',
-                  width: 220,
-                  height: 220,
-                ),
-              ),
-              const SizedBox(height: 30),
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  image: const DecorationImage(
-                    image: AssetImage('images/koyu_rectangle.png'),
-                    fit: BoxFit.cover,
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                ),
+              const SizedBox(height: 28),
+              AppCard(
+                padding: const EdgeInsets.all(22),
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'SMS Doğrulama',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: List.generate(6, (index) {
-                        return Container(
-                          width: 45,
+                        return SizedBox(
+                          width: 42,
                           height: 50,
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: TextField(
-                              controller: _controllers[index],
-                              focusNode: _focusNodes[index],
-                              textAlign: TextAlign.center,
-                              keyboardType: TextInputType.number,
-                              maxLength: 1,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                              decoration: const InputDecoration(
-                                counterText: '',
-                                border: InputBorder.none,
-                              ),
-                              onChanged: (value) => _handleInput(value, index),
-                              onEditingComplete:
-                                  () => _handleBackspace(
-                                    _controllers[index].text,
-                                    index,
-                                  ),
+                          child: TextField(
+                            controller: _controllers[index],
+                            focusNode: _focusNodes[index],
+                            textAlign: TextAlign.center,
+                            keyboardType: TextInputType.number,
+                            maxLength: 1,
+                            style: Theme.of(context).textTheme.titleLarge,
+                            decoration: InputDecoration(
+                              counterText: '',
+                              filled: true,
+                              fillColor: AppColors.paper,
+                              contentPadding: EdgeInsets.zero,
                             ),
+                            onChanged: (value) => _handleInput(value, index),
+                            onEditingComplete:
+                                () => _handleBackspace(
+                                  _controllers[index].text,
+                                  index,
+                                ),
                           ),
                         );
                       }),
                     ),
                     const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _verifyCode,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFCDE7DA),
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 3,
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 80,
-                          vertical: 12,
-                        ),
-                        child: Text('Giriş Yap'),
-                      ),
-                    ),
+                    AppButton(label: 'Giriş Yap', onPressed: _verifyCode),
                   ],
                 ),
               ),

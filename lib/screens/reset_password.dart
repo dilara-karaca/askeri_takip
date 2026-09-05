@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_page.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_button.dart';
+import '../widgets/app_app_bar.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({Key? key}) : super(key: key);
@@ -63,28 +68,20 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
+    return AppPage(
       appBar: AppBar(
+        leading: const AppBackButton(),
         title: const Text("Şifre Yenile"),
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('images/arka_plan.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
+      child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Form(
             key: _formKey,
-            child: Column(
-              children: [
-                const SizedBox(height: 80),
+            child: AppCard(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
                 _buildPasswordField(
                   label: "Eski Şifre",
                   controller: _oldPasswordController,
@@ -106,30 +103,16 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   toggle: () => _toggleVisibility('confirm'),
                 ),
                 const SizedBox(height: 30),
-                ElevatedButton(
+                AppButton(
+                  label: 'Şifreyi Güncelle',
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       _updatePassword();
                     }
                   },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: const Color(0xFF305058),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 14,
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  child: const Text(
-                    "Şifreyi Güncelle",
-                    style: TextStyle(fontSize: 22),
-                  ),
                 ),
               ],
+            ),
             ),
           ),
         ),
@@ -148,11 +131,11 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       obscureText: obscure,
       decoration: InputDecoration(
         labelText: label,
-        fillColor: Colors.white,
-        filled: true,
-        border: const OutlineInputBorder(),
         suffixIcon: IconButton(
-          icon: Icon(obscure ? Icons.visibility_off : Icons.visibility),
+          icon: Icon(
+            obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+            color: AppColors.muted,
+          ),
           onPressed: toggle,
         ),
       ),

@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_page.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_app_bar.dart';
 
 class PatientRelativePage extends StatefulWidget {
   const PatientRelativePage({super.key});
@@ -21,24 +25,12 @@ class _PatientRelativePageState extends State<PatientRelativePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFEAF4F4),
+    return AppPage(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        title: const Text(
-          'Hasta Yakınlarım',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
+        leading: const AppBackButton(),
+        title: const Text('Hasta Yakınlarım'),
       ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset('images/arka_plan.png', fit: BoxFit.cover),
-          ),
-          StreamBuilder<QuerySnapshot>(
+      child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('relatives')
                 .where('linkedPatient', isEqualTo: currentUserId)
@@ -64,9 +56,9 @@ class _PatientRelativePageState extends State<PatientRelativePage> {
                   final name = data['name'];
                   final phone = data['phone'];
 
-                  return Card(
-                    elevation: 4,
+                  return AppCard(
                     margin: const EdgeInsets.only(bottom: 12),
+                    padding: EdgeInsets.zero,
                     child: ListTile(
                       title: Text(
                         name,
@@ -74,7 +66,7 @@ class _PatientRelativePageState extends State<PatientRelativePage> {
                       ),
                       subtitle: Text(phone),
                       trailing: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
+                        icon: const Icon(Icons.delete, color: AppColors.danger),
                         onPressed: () => _deleteRelative(docId),
                       ),
                     ),
@@ -83,8 +75,6 @@ class _PatientRelativePageState extends State<PatientRelativePage> {
               );
             },
           ),
-        ],
-      ),
     );
   }
 }

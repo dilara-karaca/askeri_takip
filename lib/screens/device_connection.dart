@@ -2,6 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_page.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_app_bar.dart';
 
 class DeviceConnection extends StatefulWidget {
   @override
@@ -78,17 +82,10 @@ class _DeviceConnectionState extends State<DeviceConnection> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFEAF4F4),
+    return AppPage(
       appBar: AppBar(
-        title: const Text(
-          'Cihaz Bağlantısı',
-          style: TextStyle(color: Colors.black),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 1,
-        iconTheme: const IconThemeData(color: Colors.black),
-        centerTitle: true,
+        leading: const AppBackButton(),
+        title: const Text('Cihaz Bağlantısı'),
         actions: [
           IconButton(
             icon: Icon(isScanning ? Icons.stop : Icons.refresh),
@@ -96,54 +93,45 @@ class _DeviceConnectionState extends State<DeviceConnection> {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset('images/arka_plan.png', fit: BoxFit.cover),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child:
-                scanResults.isEmpty
-                    ? Center(
-                      child: Text(
-                        isScanning
-                            ? 'Cihazlar taranıyor...'
-                            : 'Hiçbir cihaz bulunamadı.',
-                        style: TextStyle(fontSize: 18),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child:
+            scanResults.isEmpty
+                ? Center(
+                  child: Text(
+                    isScanning
+                        ? 'Cihazlar taranıyor...'
+                        : 'Hiçbir cihaz bulunamadı.',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                )
+                : ListView.builder(
+                  itemCount: scanResults.length,
+                  itemBuilder: (context, index) {
+                    final result = scanResults[index];
+                    final device = result.device;
+                    return AppCard(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: EdgeInsets.zero,
+                      child: ListTile(
+                        leading: const Icon(
+                          Icons.bluetooth,
+                          color: AppColors.teal,
+                        ),
+                        title: Text(
+                          device.name.isNotEmpty
+                              ? device.name
+                              : "(isimsiz cihaz)",
+                        ),
+                        subtitle: Text(device.remoteId.str),
+                        trailing: ElevatedButton(
+                          child: const Text('Bağlan'),
+                          onPressed: () => _connectToDevice(device),
+                        ),
                       ),
-                    )
-                    : ListView.builder(
-                      itemCount: scanResults.length,
-                      itemBuilder: (context, index) {
-                        final result = scanResults[index];
-                        final device = result.device;
-                        return Card(
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: ListTile(
-                            leading: const Icon(
-                              Icons.bluetooth,
-                              color: Colors.teal,
-                            ),
-                            title: Text(
-                              device.name.isNotEmpty
-                                  ? device.name
-                                  : "(isimsiz cihaz)",
-                            ),
-                            subtitle: Text(device.remoteId.str),
-                            trailing: ElevatedButton(
-                              child: const Text('Bağlan'),
-                              onPressed: () => _connectToDevice(device),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-          ),
-        ],
+                    );
+                  },
+                ),
       ),
     );
   }

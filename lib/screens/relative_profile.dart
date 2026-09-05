@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import '../widgets/app_page.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_app_bar.dart';
 
 class RelativeProfile extends StatefulWidget {
   @override
@@ -68,34 +71,18 @@ class _RelativeProfileState extends State<RelativeProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
+    return AppPage(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'Profil',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        iconTheme: const IconThemeData(color: Colors.black),
+        leading: const AppBackButton(),
+        title: const Text('Profil'),
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('images/arka_plan.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child:
-            isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : SafeArea(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
-                    child: Column(
+      child:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  child: Column(
                       children: [
                         _buildEditableTile(
                           "Ad Soyad",
@@ -116,7 +103,6 @@ class _RelativeProfileState extends State<RelativeProfile> {
                     ),
                   ),
                 ),
-      ),
     );
   }
 
@@ -168,16 +154,9 @@ class _RelativeProfileState extends State<RelativeProfile> {
     final isPhoneField = label == "Telefon Numarası";
     final isEmailField = label == "Email";
 
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.85),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
-        ],
-      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

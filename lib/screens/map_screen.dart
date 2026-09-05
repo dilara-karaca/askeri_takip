@@ -3,6 +3,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../theme/app_colors.dart';
+import '../widgets/app_app_bar.dart';
 
 class MapScreen extends StatefulWidget {
   @override
@@ -57,7 +59,11 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     if (patientLocation == null || relativeLocation == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text("Konumlar Yükleniyor")),
+        backgroundColor: AppColors.canvas,
+        appBar: AppBar(
+          leading: const AppBackButton(),
+          title: const Text("Konumlar Yükleniyor"),
+        ),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -78,7 +84,10 @@ class _MapScreenState extends State<MapScreen> {
     };
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Haritada Konumlar")),
+      appBar: AppBar(
+        leading: const AppBackButton(),
+        title: const Text("Haritada Konumlar"),
+      ),
       body: GoogleMap(
         onMapCreated: (controller) {
           _mapController = controller;
