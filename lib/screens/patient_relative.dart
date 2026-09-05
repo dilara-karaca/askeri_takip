@@ -28,7 +28,7 @@ class _PatientRelativePageState extends State<PatientRelativePage> {
     return AppPage(
       appBar: AppBar(
         leading: const AppBackButton(),
-        title: const Text('Hasta Yakınlarım'),
+        title: const Text('Acil Durum İrtibatları'),
       ),
       child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
@@ -42,7 +42,7 @@ class _PatientRelativePageState extends State<PatientRelativePage> {
               }
 
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return const Center(child: Text("Henüz kayıtlı yakınız yok."));
+                return const Center(child: Text("Henüz kayıtlı irtibat yok."));
               }
 
               final relatives = snapshot.data!.docs;

@@ -37,12 +37,12 @@ class _RegisterRelativeScreenState extends State<RegisterRelativeScreen> {
           child: Column(
             children: [
               const AuthHeader(
-                title: 'Kronik Hasta Takip',
-                subtitle: 'Hasta yakını kaydı',
+                title: 'Fizyolojik Takip',
+                subtitle: 'Komuta kaydı',
               ),
               const SizedBox(height: 20),
               AppSegmented(
-                labels: const ['Hasta', 'Hasta Yakını'],
+                labels: const ['Personel', 'Komuta'],
                 selectedIndex: 1,
                 onChanged: (index) {
                   if (index == 0) {
@@ -84,7 +84,7 @@ class _RegisterRelativeScreenState extends State<RegisterRelativeScreen> {
                       obscureText: true,
                     ),
                     buildInputField(
-                      label: 'Hasta Bağlantı Kodu',
+                      label: 'Personel Bağlantı Kodu',
                       controller: patientCodeController,
                     ),
                     const SizedBox(height: 8),
@@ -158,7 +158,7 @@ class _RegisterRelativeScreenState extends State<RegisterRelativeScreen> {
       if (patientId == null) {
         await userCredential.user?.delete();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Geçersiz hasta bağlantı kodu.")),
+          const SnackBar(content: Text("Geçersiz personel bağlantı kodu.")),
         );
         return;
       }

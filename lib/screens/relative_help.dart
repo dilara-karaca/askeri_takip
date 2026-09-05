@@ -11,36 +11,37 @@ class RelativeHelp extends StatelessWidget {
     _HelpInfo(
       color: const Color(0xFF2F6B4F),
       icon: Icons.watch,
-      title: "Giyilebilir Sağlık Teknolojileri",
+      title: "Giyilebilir Fizyolojik İzleme",
       description:
-          "Pazu bandı sayesinde, tansiyon ve kalp atışı gibi sağlık verilerinizi otomatik takip edin.",
+          "Bağlı personelin pazuband verileri nabız, SpO₂, cilt sıcaklığı ve GSR olarak izlenir.",
     ),
     _HelpInfo(
       color: const Color(0xFF3A6E7A),
-      icon: Icons.cloud_outlined,
-      title: "Sağlık Verilerinize Her An Ulaşın",
-      description: "Mobil cihazınızdan her an sağlık verilerine erişin.",
+      icon: Icons.monitor_heart_outlined,
+      title: "Komuta Seviyesinde Farkındalık",
+      description:
+          "Personelin fizyolojik durumu ve acil bildirimleri bu hesaptan takip edilir.",
     ),
     _HelpInfo(
       color: const Color(0xFF44555A),
-      icon: Icons.history,
-      title: "Sağlık Geçmişinizi Görüntüleyin",
+      icon: Icons.notifications_active_outlined,
+      title: "Alarm Bildirimleri",
       description:
-          "Tüm verilerinize uygulama üzerinden erişin. Geçmişe dönük verilerinizi inceleyin.",
+          "Sarı ve kırmızı alarm bildirimleri kayıtlı komuta hesabına iletilir.",
     ),
     _HelpInfo(
       color: const Color(0xFF8C3A36),
       icon: Icons.emergency,
-      title: "112 Acil Butonu ile Acil Durumlarda Çaresiz Kalmayın",
+      title: "Konum ve Acil Durum",
       description:
-          "112 acil butonu tuş takımını 112 yazılı açar. Çağrı, Ara’ya basınca gider; yakınınızı ayrıca bilgilendirebilirsiniz.",
+          "Harita, bağlı personelin son konumunu gösterir. 112 çağrısı personel cihazından yapılır.",
     ),
     _HelpInfo(
       color: const Color(0xFF5A6B3A),
       icon: Icons.smart_toy,
-      title: "ChatBot ile Sağlık Önerileri Alın",
+      title: "Saha Sağlık Asistanı",
       description:
-          "ChatBot ile sağlığınız hakkında öneriler alın. Sağlık verilerinizi analiz ederek size önerilerde bulunur.",
+          "Ölçüm aralıkları hakkında bilgi alın. Asistan teşhis koymaz.",
     ),
   ];
 

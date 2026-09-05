@@ -22,7 +22,7 @@ class SecurityPage extends StatelessWidget {
           SettingsGroup(
             children: [
               SettingsRow(
-                title: 'Hasta Yakınlarım',
+                title: 'Acil Durum İrtibatları',
                 icon: Icons.people_outline,
                 onTap: () {
                   Navigator.push(

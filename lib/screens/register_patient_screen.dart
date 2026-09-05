@@ -65,12 +65,12 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
           child: Column(
             children: [
               const AuthHeader(
-                title: 'Kronik Hasta Takip',
-                subtitle: 'Hasta kaydı',
+                title: 'Fizyolojik Takip',
+                subtitle: 'Personel kaydı',
               ),
               const SizedBox(height: 20),
               AppSegmented(
-                labels: const ['Hasta', 'Hasta Yakını'],
+                labels: const ['Personel', 'Komuta'],
                 selectedIndex: 0,
                 onChanged: (index) {
                   if (index == 1) {
@@ -252,8 +252,8 @@ class _RegisterPatientScreenState extends State<RegisterPatientScreen> {
         const SizedBox(height: 12),
         MultiSelectDialogField<String>(
           items: diseaseList.map((e) => MultiSelectItem<String>(e, e)).toList(),
-          title: const Text("Hastalıklar"),
-          buttonText: const Text("Hastalık Seç"),
+          title: const Text("Tıbbi Kayıtlar"),
+          buttonText: const Text("Tıbbi Bilgi Seç"),
           onConfirm: (values) {
             setState(() {
               selectedDiseases = List<String>.from(values);

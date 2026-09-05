@@ -4,7 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_page.dart';
-import '../widgets/metric_tile.dart';
+import '../widgets/vital_card.dart';
+import '../utils/physiological_status.dart';
 
 class RelativeHomePage extends StatefulWidget {
   @override
@@ -63,7 +64,7 @@ class RelativeHomePageState extends State<RelativeHomePage> {
   }
 
   String getPossessiveSuffix(String name) {
-    if (name.isEmpty) return "Hasta'nın";
+    if (name.isEmpty) return "Personel'in";
 
     final vowels = 'aeıioöuü';
     final lastVowel = name
@@ -124,11 +125,11 @@ class RelativeHomePageState extends State<RelativeHomePage> {
 
       setState(() {
         relativeName = relativeNameFromDb ?? "Kullanıcı";
-        patientName = patientNameFromDb ?? "Hasta";
+        patientName = patientNameFromDb ?? "Personel";
         isLoading = false;
       });
     } catch (e) {
-      print("Hasta veya yakını adı alınamadı: $e");
+      print("Personel veya komuta hesabı adı alınamadı: $e");
       setState(() => isLoading = false);
     }
   }
@@ -161,7 +162,6 @@ class RelativeHomePageState extends State<RelativeHomePage> {
                             separatorBuilder: (_, __) => const Divider(),
                             itemBuilder: (context, index) {
                               final notification = notifications[index];
-                              final patient = patientName ?? "Hasta";
                               return ListTile(
                                 leading: const Icon(
                                   Icons.warning,
@@ -192,7 +192,13 @@ class RelativeHomePageState extends State<RelativeHomePage> {
     final displayName =
         isLoading || patientName == null
             ? null
-            : "${getPossessiveSuffix(patientName!.split(' ').first)}";
+            : getPossessiveSuffix(patientName!.split(' ').first);
+    const status = PhysiologicalStatus(
+      level: PhysiologicalLevel.noData,
+      title: 'VERİ BEKLENİYOR',
+      message:
+          'Canlı fizyolojik veri bu hesapta henüz yok. Alarm bildirimleri burada görünür.',
+    );
 
     return AppPage(
       child: SafeArea(
@@ -205,6 +211,8 @@ class RelativeHomePageState extends State<RelativeHomePage> {
                   Expanded(
                     child: Text(
                       isLoading ? "Merhaba" : "Merhaba ${relativeName ?? ''}",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.fraunces(
                         fontSize: 26,
                         fontWeight: FontWeight.w600,
@@ -266,38 +274,101 @@ class RelativeHomePageState extends State<RelativeHomePage> {
                     isLoading
                         ? const CircularProgressIndicator()
                         : Text(
-                          "$displayName Verileri",
+                          "$displayName fizyolojik durumu",
                           style: GoogleFonts.sourceSans3(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: AppColors.muted,
                           ),
                         ),
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                      decoration: BoxDecoration(
+                        color: status.softColor,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: status.color.withValues(alpha: 0.35),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'FİZYOLOJİK DURUM',
+                            style: GoogleFonts.sourceSans3(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.4,
+                              color: status.color,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            status.title,
+                            style: GoogleFonts.fraunces(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w600,
+                              height: 1.1,
+                              color: status.color,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            status.message,
+                            style: GoogleFonts.sourceSans3(
+                              fontSize: 14,
+                              height: 1.35,
+                              color: AppColors.ink.withValues(alpha: 0.78),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: 16),
-                    const MetricTile(
-                      title: 'Kalp Atışı',
-                      value: '67 bpm',
-                      imagePath: 'images/kalp.png',
+                    const Row(
+                      children: [
+                        Expanded(
+                          child: VitalCard(
+                            title: 'Nabız',
+                            value: '-',
+                            unit: 'BPM',
+                            imagePath: 'images/kalp.png',
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: VitalCard(
+                            title: 'SpO₂',
+                            value: '-',
+                            unit: '%',
+                            imagePath: 'images/kan.png',
+                          ),
+                        ),
+                      ],
                     ),
-                    const MetricTile(
-                      title: 'Tansiyon',
-                      value: '126/70',
-                      imagePath: 'images/tansiyon.png',
-                    ),
-                    const MetricTile(
-                      title: 'Vücut Sıcaklığı',
-                      value: '37°C',
-                      imagePath: 'images/temp.png',
-                    ),
-                    const MetricTile(
-                      title: 'Kan Oksijen',
-                      value: '96 %',
-                      imagePath: 'images/kan.png',
-                    ),
-                    const MetricTile(
-                      title: 'Stres Seviyesi',
-                      value: 'Düşük',
-                      imagePath: 'images/stressed.png',
+                    const SizedBox(height: 10),
+                    const Row(
+                      children: [
+                        Expanded(
+                          child: VitalCard(
+                            title: 'Cilt Sıcaklığı',
+                            value: '-',
+                            unit: '°C',
+                            imagePath: 'images/temp.png',
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: VitalCard(
+                            title: 'GSR / Stres',
+                            value: '-',
+                            unit: '',
+                            imagePath: 'images/stressed.png',
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -308,5 +379,4 @@ class RelativeHomePageState extends State<RelativeHomePage> {
       ),
     );
   }
-
 }

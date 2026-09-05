@@ -47,7 +47,7 @@ class AppPage extends StatelessWidget {
               height: 240,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.mint.withValues(alpha: 0.45),
+                color: AppColors.mint.withValues(alpha: 0.22),
               ),
             ),
           ),
@@ -59,7 +59,7 @@ class AppPage extends StatelessWidget {
               height: 180,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.sage.withValues(alpha: 0.35),
+                color: AppColors.sage.withValues(alpha: 0.18),
               ),
             ),
           ),

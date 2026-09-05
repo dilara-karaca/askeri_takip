@@ -45,6 +45,8 @@ class MetricTile extends StatelessWidget {
           ),
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: GoogleFonts.fraunces(
               fontSize: 22,
               fontWeight: FontWeight.w600,

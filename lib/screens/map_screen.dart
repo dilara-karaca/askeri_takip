@@ -72,7 +72,7 @@ class _MapScreenState extends State<MapScreen> {
       Marker(
         markerId: const MarkerId('patient'),
         position: patientLocation!,
-        infoWindow: const InfoWindow(title: "Hasta"),
+        infoWindow: const InfoWindow(title: "Personel"),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
       ),
       Marker(

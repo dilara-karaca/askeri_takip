@@ -11,36 +11,37 @@ class HelpPage extends StatelessWidget {
     _HelpInfo(
       color: const Color(0xFF2F6B4F),
       icon: Icons.watch,
-      title: "Giyilebilir Sağlık Teknolojileri",
+      title: "Giyilebilir Fizyolojik İzleme",
       description:
-          "Pazu bandı sayesinde, tansiyon ve kalp atışı gibi sağlık verilerinizi otomatik takip edin.",
+          "Pazuband üzerindeki SpO₂, nabız, cilt sıcaklığı ve GSR verilerini gerçek zamanlı izleyin.",
     ),
     _HelpInfo(
       color: const Color(0xFF3A6E7A),
-      icon: Icons.cloud_outlined,
-      title: "Sağlık Verilerinize Her An Ulaşın",
-      description: "Mobil cihazınızdan her an sağlık verilerine erişin.",
+      icon: Icons.monitor_heart_outlined,
+      title: "Fizyolojik Durumu Tek Bakışta Görün",
+      description:
+          "Ana sayfada NORMAL, DİKKAT ve KRİTİK durumları hızlı okunacak biçimde gösterilir.",
     ),
     _HelpInfo(
       color: const Color(0xFF44555A),
-      icon: Icons.history,
-      title: "Sağlık Geçmişinizi Görüntüleyin",
+      icon: Icons.bluetooth_connected,
+      title: "Cihaz Bağlantısı",
       description:
-          "Tüm verilerinize uygulama üzerinden erişin. Geçmişe dönük verilerinizi inceleyin.",
+          "ESP32 tabanlı pazubandı Bluetooth üzerinden bağlayarak ölçüm akışını alın.",
     ),
     _HelpInfo(
       color: const Color(0xFF8C3A36),
       icon: Icons.emergency,
-      title: "112 Acil Butonu ile Acil Durumlarda Çaresiz Kalmayın",
+      title: "Kritik Anomalide Acil Durum",
       description:
-          "112 acil butonu tuş takımını 112 yazılı açar. Çağrı, Ara’ya basınca gider; yakınınızı ayrıca bilgilendirebilirsiniz. Bu hizmet, acil durumunda hayat kurtarır.",
+          "ACİL ekranı 112 tuş takımını açar ve kayıtlı komuta / sağlık irtibatına bildirim gönderir.",
     ),
     _HelpInfo(
       color: const Color(0xFF5A6B3A),
       icon: Icons.smart_toy,
-      title: "ChatBot ile Sağlık Önerileri Alın",
+      title: "Saha Sağlık Asistanı",
       description:
-          "ChatBot ile sağlığınız hakkında öneriler alın. Sağlık verilerinizi analiz ederek size önerilerde bulunur.",
+          "Ölçüm aralıkları hakkında bilgi alın. Asistan teşhis koymaz; mevcut fizyolojik eşikleri hatırlatır.",
     ),
   ];
 

@@ -91,7 +91,7 @@ class _EmergencyState extends State<Emergency>
   Future<void> sendEmergencyNotification(String relativeUid) async {
     await FirebaseFirestore.instance.collection('notifications').add({
       'to': relativeUid,
-      'message': 'Hastanız acil durum bildirimi gönderdi.',
+      'message': 'Personel acil fizyolojik durum bildirimi gönderdi.',
       'timestamp': Timestamp.now(),
     });
 
@@ -103,6 +103,31 @@ class _EmergencyState extends State<Emergency>
   void _call112() {
     HapticFeedback.heavyImpact();
     _openDialer('112');
+  }
+
+  Future<void> _notifyAllLinkedContacts() async {
+    if (relatives.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Kayıtlı irtibat bulunmuyor.")),
+      );
+      return;
+    }
+
+    for (final contact in relatives) {
+      final uid = contact['uid'] as String? ?? '';
+      if (uid.isEmpty) continue;
+      await FirebaseFirestore.instance.collection('notifications').add({
+        'to': uid,
+        'message': 'Personel acil fizyolojik durum bildirimi gönderdi.',
+        'timestamp': Timestamp.now(),
+      });
+    }
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Bildirim gönderildi.")));
   }
 
   void _openContactActions(Map<String, dynamic> contact) {
@@ -194,32 +219,63 @@ class _EmergencyState extends State<Emergency>
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
                 child: Column(
                   children: [
-                    const SizedBox(height: 12),
-                    _SosButton(pulse: _pulse, onPressed: _call112),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 4),
                     Text(
-                      '112 Acil Çağrı',
+                      'KRİTİK FİZYOLOJİK ANOMALİ',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.sourceSans3(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.4,
+                        color: AppColors.emergency,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _SosButton(pulse: _pulse, onPressed: _call112),
+                    const SizedBox(height: 14),
+                    Text(
+                      'Acil durum tespit edildi.',
+                      textAlign: TextAlign.center,
                       style: GoogleFonts.fraunces(
-                        fontSize: 26,
+                        fontSize: 24,
                         fontWeight: FontWeight.w600,
                         color: AppColors.ink,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Butona basınca tuş takımı 112 yazılı açılır.\nAramak için telefonda Ara’ya basın.',
+                      '112 tuş takımını açar. Bildirimler kayıtlı irtibat hesaplarına gönderilir.',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.sourceSans3(
-                        fontSize: 15,
+                        fontSize: 14,
                         height: 1.4,
                         color: AppColors.muted,
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 20),
+                    _EmergencyActionButton(
+                      icon: Icons.medical_services_outlined,
+                      label: 'Sağlık Desteği Bildir',
+                      onTap: _notifyAllLinkedContacts,
+                    ),
+                    const SizedBox(height: 10),
+                    _EmergencyActionButton(
+                      icon: Icons.phone_in_talk_outlined,
+                      label: "112'yi Ara",
+                      filled: true,
+                      onTap: _call112,
+                    ),
+                    const SizedBox(height: 10),
+                    _EmergencyActionButton(
+                      icon: Icons.campaign_outlined,
+                      label: 'Bölüğe Bildir',
+                      onTap: _notifyAllLinkedContacts,
+                    ),
+                    const SizedBox(height: 28),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'YAKINLARI BİLGİLENDİR',
+                        'KAYITLI İRTİBAT',
                         style: GoogleFonts.sourceSans3(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -232,7 +288,7 @@ class _EmergencyState extends State<Emergency>
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Lütfen Acil Durum Çağrısı için Yakına Bildirim Gönderiniz',
+                        'Komuta ve sağlık desteği irtibatlarını bilgilendirin.',
                         style: GoogleFonts.sourceSans3(
                           fontSize: 14,
                           color: AppColors.ink.withValues(alpha: 0.78),
@@ -253,7 +309,7 @@ class _EmergencyState extends State<Emergency>
                           border: Border.all(color: const Color(0xFFE8D4D0)),
                         ),
                         child: Text(
-                          'Kayıtlı hasta yakını bulunmuyor.',
+                          'Kayıtlı irtibat bulunmuyor.',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.sourceSans3(
                             fontSize: 15,
@@ -315,7 +371,7 @@ class _EmergencyHeader extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             Text(
-              'Acil durum',
+              'Acil Durum',
               style: GoogleFonts.fraunces(
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
@@ -588,6 +644,63 @@ class _RoundAction extends StatelessWidget {
                 size: 20,
                 color: filled ? Colors.white : AppColors.emergency,
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmergencyActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool filled;
+
+  const _EmergencyActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.filled = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Material(
+        color: filled ? AppColors.emergency : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: filled ? AppColors.emergency : const Color(0xFFE8D4D0),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  color: filled ? Colors.white : AppColors.emergency,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: GoogleFonts.sourceSans3(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: filled ? Colors.white : AppColors.ink,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

@@ -142,7 +142,7 @@ class _LoginEmailScreenState extends State<LoginEmailScreen> {
           child: Column(
             children: [
               const AuthHeader(
-                title: 'Kronik Hasta Takip',
+                title: 'Fizyolojik Takip',
                 subtitle: 'Hesabınıza giriş yapın',
               ),
               const SizedBox(height: 28),

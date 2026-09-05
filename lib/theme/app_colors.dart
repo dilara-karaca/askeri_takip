@@ -15,4 +15,6 @@ class AppColors {
   static const emergency = Color(0xFFB42318);
   static const emergencySoft = Color(0xFFF4E4E1);
   static const danger = Color(0xFF9B2C2C);
+  static const caution = Color(0xFFB45309);
+  static const cautionSoft = Color(0xFFF6E8D4);
 }

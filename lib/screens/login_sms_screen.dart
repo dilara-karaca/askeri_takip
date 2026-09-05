@@ -97,7 +97,7 @@ class _LoginSmsScreenState extends State<LoginSmsScreen> {
           child: Column(
             children: [
               const AuthHeader(
-                title: 'Kronik Hasta Takip',
+                title: 'Fizyolojik Takip',
                 subtitle: 'SMS kodunu girin',
                 logoSize: 96,
               ),

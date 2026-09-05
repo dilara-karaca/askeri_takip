@@ -83,7 +83,7 @@ class _LoginPhoneScreenState extends State<LoginPhoneScreen> {
             child: Column(
               children: [
                 const AuthHeader(
-                  title: 'Kronik Hasta Takip',
+                  title: 'Fizyolojik Takip',
                   subtitle: 'Hesabınıza giriş yapın',
                 ),
                 const SizedBox(height: 28),

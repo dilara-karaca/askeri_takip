@@ -38,7 +38,7 @@ class KronikHastaTakipApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Kronik Hasta Takip',
+      title: 'Fizyolojik Takip',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       initialRoute: '/loginEmail',

@@ -14,19 +14,35 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   final TextEditingController _messageController = TextEditingController();
 
   final List<Map<String, dynamic>> messages = [
-    {"text": "Merhaba, size nasıl yardımcı olabilirim?", "isBot": true},
-    {"text": "Bugünkü tansiyon değerlerim normal mi?", "isBot": false},
     {
-      "text": "Tansiyonunuz ideal aralıkta. Günlük ölçümlere devam edin.",
+      "text":
+          "Saha Sağlık Asistanı. Mevcut ölçüm aralıkları hakkında bilgi verebilirim; teşhis koyamam.",
       "isBot": true,
     },
   ];
 
   final List<String> quickQuestions = [
-    "Kalp ritmim normal mi?",
-    "Bugünkü adım sayımım yeterli mi?",
-    "Bugünkü tansiyonum iyi mi?",
+    "Nabız aralığı nedir?",
+    "SpO₂ nasıl okunur?",
+    "Cilt sıcaklığı eşiği nedir?",
   ];
+
+  String _replyFor(String message) {
+    final q = message.toLowerCase();
+    if (q.contains('nabız') || q.contains('bpm') || q.contains('kalp')) {
+      return 'Nabız değeriniz mevcut ölçümlerde 60–100 BPM aralığında görünüyorsa normal kabul edilir. 50 altı veya 120 üstü anomali olarak izlenir.';
+    }
+    if (q.contains('spo') || q.contains('oksijen')) {
+      return 'SpO₂ için normal aralık %95–100 olarak izlenir. %90–94 dikkat, %90 altı kritik kabul edilir. Teşhis koyamam.';
+    }
+    if (q.contains('sıcak') || q.contains('ısı') || q.contains('temp')) {
+      return 'Cilt sıcaklığı için normal aralık 33–37 °C olarak izlenir. 38.5 °C üzeri kritik ısı yüklenmesi olarak değerlendirilir.';
+    }
+    if (q.contains('gsr') || q.contains('stres')) {
+      return 'GSR / stres göstergesi dinlenimde düşük görünür. Yüksek ve süren değerler stres uyarısı olarak izlenir; teşhis niteliği taşımaz.';
+    }
+    return 'Ölçümlerinizi ana sayfadaki fizyolojik kartlardan izleyebilirsiniz. Teşhis koyamam. Acil durumda ACİL butonunu kullanın.';
+  }
 
   void _sendMessage([String? text]) {
     final message = text ?? _messageController.text.trim();
@@ -38,8 +54,9 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     });
 
     Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
       setState(() {
-        messages.add({"text": "Lütfen bekleyiniz.", "isBot": true});
+        messages.add({"text": _replyFor(message), "isBot": true});
       });
     });
   }
@@ -49,11 +66,10 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     return AppPage(
       appBar: AppBar(
         leading: const AppBackButton(),
-        title: const Text("Sağlık Asistanı"),
+        title: const Text("Saha Sağlık Asistanı"),
       ),
       child: Column(
             children: [
-              // Mesajlar
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(
@@ -77,7 +93,6 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                 ),
               ),
 
-              // Hızlı Sorular
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -115,7 +130,6 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                 ),
               ),
 
-              // Mesaj Yazma Alanı
               SafeArea(
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -145,7 +159,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                           child: TextField(
                             controller: _messageController,
                             decoration: const InputDecoration(
-                              hintText: "Ne sormak istersiniz?",
+                              hintText: "Ölçüm aralığı sorun",
                               border: InputBorder.none,
                             ),
                           ),

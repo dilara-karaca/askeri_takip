@@ -6,6 +6,7 @@ import 'profile.dart';
 import 'security.dart';
 import 'device_connection.dart';
 import 'help.dart';
+import 'patient_relative.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_page.dart';
 import '../widgets/settings_row.dart';
@@ -31,7 +32,7 @@ class Settings extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Hesap, cihaz ve güvenlik',
+              'Profil, cihaz ve acil durum',
               style: GoogleFonts.sourceSans3(
                 fontSize: 15,
                 color: AppColors.muted,
@@ -39,11 +40,11 @@ class Settings extends StatelessWidget {
             ),
             const SizedBox(height: 26),
             SettingsGroup(
-              label: 'Hesap',
+              label: 'Profil',
               children: [
                 SettingsRow(
                   title: "Profil",
-                  subtitle: 'Kişisel bilgileriniz',
+                  subtitle: 'Personel bilgileri',
                   icon: Icons.person_outline,
                   onTap:
                       () => Navigator.push(
@@ -51,6 +52,11 @@ class Settings extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => ProfilePage()),
                       ),
                 ),
+              ],
+            ),
+            SettingsGroup(
+              label: 'Güvenlik',
+              children: [
                 SettingsRow(
                   title: "Güvenlik",
                   subtitle: 'Şifre ve hesap işlemleri',
@@ -61,9 +67,14 @@ class Settings extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => SecurityPage()),
                       ),
                 ),
+              ],
+            ),
+            SettingsGroup(
+              label: 'Cihaz Bağlantısı',
+              children: [
                 SettingsRow(
                   title: "Cihaz Bağlantısı",
-                  subtitle: 'Giyilebilir cihazı yönetin',
+                  subtitle: 'Giyilebilir pazubandı yönetin',
                   icon: Icons.watch_outlined,
                   onTap:
                       () => Navigator.push(
@@ -76,11 +87,28 @@ class Settings extends StatelessWidget {
               ],
             ),
             SettingsGroup(
-              label: 'Destek',
+              label: 'Acil Durum Ayarları',
+              children: [
+                SettingsRow(
+                  title: "Acil Durum İrtibatları",
+                  subtitle: 'Komuta ve sağlık desteği bildirimleri',
+                  icon: Icons.emergency_outlined,
+                  onTap:
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PatientRelativePage(),
+                        ),
+                      ),
+                ),
+              ],
+            ),
+            SettingsGroup(
+              label: 'Yardım',
               children: [
                 SettingsRow(
                   title: "Yardım",
-                  subtitle: 'Uygulama kılavuzu',
+                  subtitle: 'Sistem kılavuzu',
                   icon: Icons.help_outline,
                   onTap:
                       () => Navigator.push(

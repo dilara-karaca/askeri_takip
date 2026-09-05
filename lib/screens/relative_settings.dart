@@ -32,7 +32,7 @@ class RelativeSettings extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Hesap ve güvenlik',
+              'Hesap ve izleme',
               style: GoogleFonts.sourceSans3(
                 fontSize: 15,
                 color: AppColors.muted,
@@ -44,7 +44,7 @@ class RelativeSettings extends StatelessWidget {
               children: [
                 SettingsRow(
                   title: "Profil",
-                  subtitle: 'Kişisel bilgileriniz',
+                  subtitle: 'Komuta hesabı bilgileri',
                   icon: Icons.person_outline,
                   onTap:
                       () => Navigator.push(
@@ -71,7 +71,7 @@ class RelativeSettings extends StatelessWidget {
               children: [
                 SettingsRow(
                   title: "Yardım",
-                  subtitle: 'Uygulama kılavuzu',
+                  subtitle: 'Sistem kılavuzu',
                   icon: Icons.help_outline,
                   onTap:
                       () => Navigator.push(

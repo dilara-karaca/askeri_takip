@@ -1,5 +1,5 @@
 name: kronik_hasta_takip
-description: "Kronik hastaların takibi için mobil uygulama"
+description: "Askeri personel fizyolojik izleme ve anomali farkındalık uygulaması"
 publish_to: 'none'
 
 version: 1.0.0+1

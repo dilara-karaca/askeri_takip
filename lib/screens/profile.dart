@@ -416,7 +416,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Column(
                     children: [
                       const Text(
-                        'Hastalıklar',
+                        'Tıbbi Kayıtlar',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -554,7 +554,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
               ),
               _buildEditableTile(
-                "Kayıtlı Hastalıklar",
+                "Tıbbi Kayıtlar",
                 diseaseController,
                 maxLines: 4,
                 onEdit: showDiseaseSelectionPanel,
